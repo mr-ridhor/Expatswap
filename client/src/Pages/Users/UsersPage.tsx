@@ -1,58 +1,67 @@
 // import React from 'react'
-import { Link, NavLink } from "react-router-dom";
+import { NavLink } from "react-router-dom";
 import { PrimaryButton } from "../../Components/Button";
 import { IoMdHome } from "react-icons/io";
 import { FaUsers } from "react-icons/fa";
 import Table, { ColumnType } from "../../Components/Table";
-import { useState } from "react";
+import { useEffect, useState } from "react";
+import axios from "axios";
+import moment from "moment";
 
 // Define your data structure
 interface UserData {
   id: number;
-  name: string;
+  firstName: string;
+  lastName: string;
+  phoneNumber: string;
   age?: number;
-  date_of_birth: string;
+  email: string;
+  dob: string;
 }
 
 // Define your columns
 const columns: ColumnType<UserData>[] = [
-  { label: "ID", selector: "id", sortable: true },
-  { label: "Name", selector: "name", sortable: true },
-  { label: "Age", selector: "date_of_birth", sortable: true },
+  // { label: "ID", selector: "id", sortable: true },
+  { label: "First Name", selector: "firstName", sortable: true },
+  { label: "Last Name", selector: "lastName", sortable: true },
+  { label: "Email", selector: "email", sortable: true },
+  { label: "Phone Number", selector: "phoneNumber", sortable: true },
+  { label: "Age", selector: "dob", sortable: true },
 ];
 const UsersPage = () => {
-  const data: UserData[] = [
-    { id: 1, name: "John", date_of_birth: "1994-03-1" },
-    { id: 2, name: "Jane", date_of_birth: "1999-03-20" },
-    { id: 3, name: "Doe", date_of_birth: "1984-05-30" },
-    { id: 4, name: "John", date_of_birth: "1994-03-10" },
-    { id: 5, name: "Jane", date_of_birth: "1999-7-6" },
-    { id: 6, name: "Doe", date_of_birth: "1984-1-19" },
-    { id: 7, name: "John", date_of_birth: "1994-12-2" },
-    { id: 8, name: "Jane", date_of_birth: "1999-10-29" },
-    { id: 9, name: "Doe", date_of_birth: "1984-4-25" },
-    { id: 10, name: "John", date_of_birth: "1994-6-27" },
-    { id: 11, name: "Jane", date_of_birth: "1999-11-30" },
-    { id: 12, name: "Doe", date_of_birth: "1984-1-9" },
-    { id: 13, name: "John", date_of_birth: "1994-5-20" },
-    { id: 14, name: "Jane", date_of_birth: "1999-7-8" },
-    { id: 15, name: "Doe", date_of_birth: "1984-5-20" },
-    { id: 16, name: "John", date_of_birth: "1994-6-2" },
-    { id: 17, name: "Jane", date_of_birth: "1999-12-19" },
-    { id: 18, name: "Doe", date_of_birth: "1984-4-11" },
-    { id: 19, name: "John", date_of_birth: "1994-4-2" },
-    { id: 20, name: "Jane", date_of_birth: "1999-3-7" },
-    { id: 21, name: "Doe", date_of_birth: "1984-2-6" },
-    { id: 22, name: "John", date_of_birth: "1994-2-22" },
-    { id: 23, name: "Jane", date_of_birth: "1999-5-19" },
-    { id: 24, name: "Doe", date_of_birth: "1984-9-2" },
-  ];
+  const [data, setData] = useState<UserData[]>([]);
   const [startDate, setStartDate] = useState("");
   const [endDate, setEndDate] = useState("");
-  const [filteredData, setFilteredData] = useState<UserData[]>(data);
+  const [filteredData, setFilteredData] = useState<UserData[]>([]);
+
+  useEffect(() => {
+    fetchData();
+  }, []);
+
+  const fetchData = async () => {
+    try {
+      const response = await axios.get(
+        "https://backendboilerplate.onrender.com/api/users"
+      );
+      const formattedData = response.data.map((user: UserData) => {
+        // Parse the date of birth using Moment.js and format it
+        const formattedDob = moment(user.dob).format("MMM, DD YYYY");
+
+        // Return the user object with the formatted date of birth
+        return { ...user, dob: formattedDob };
+      });
+
+      setData(formattedData);
+      setFilteredData(formattedData);
+    } catch (error) {
+      console.error("Error fetching data:", error);
+    }
+  };
+  console.log("data", data);
+  console.log("fil", filteredData);
   const handleFilter = () => {
     const filtered = data.filter((user) => {
-      const dob = new Date(user.date_of_birth);
+      const dob = new Date(user.dob);
       return dob >= new Date(startDate) && dob <= new Date(endDate);
     });
     setFilteredData(filtered);
@@ -90,13 +99,14 @@ const UsersPage = () => {
             type="date"
             value={startDate}
             onChange={handleStartDateChange}
-            className="border p-2"
+            className="border py-2 md:px-2 px-0.5 text-xs"
           />
+
           <input
             type="date"
             value={endDate}
             onChange={handleEndDateChange}
-            className="border p-2"
+            className="border py-2 md:px-2 px-0.5 text-xs"
           />
           <button
             onClick={handleFilter}
@@ -106,7 +116,14 @@ const UsersPage = () => {
           </button>
         </div>
       </div>
-      <Table data={filteredData} columns={columns} />
+      {data.length === 0 ? (
+        <div className="flex justify-center items-center">Loading...</div>
+      ) : (
+        <>
+          <Table data={filteredData} columns={columns} />
+        </>
+      )}
+      {/* <Table data={filteredData} columns={columns} /> */}
     </div>
   );
 };

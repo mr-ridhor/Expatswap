@@ -1,9 +1,9 @@
 export type RegTypes = {
-    first_name?: string;
-    last_name?: string;
+    firstName: string;
+    lastName: string;
     email: string;
-    phone?: string;
-    dob?:string;
+    phoneNumber: string;
+    dob:string;
   };
   
  

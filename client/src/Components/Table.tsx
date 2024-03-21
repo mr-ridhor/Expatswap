@@ -17,20 +17,7 @@ const Table = <DataItem,>({ data, columns }: TableProps<DataItem>) => {
   const [sortColumn, setSortColumn] = useState<keyof DataItem | null>(null); // Specify the type explicitly
   const [sortDirection, setSortDirection] = useState<"asc" | "desc">("asc");
 
-  // Sort the data based on the selected column and direction
-  // const sortedData = data.slice().sort((a, b) => {
-  //   if (sortColumn !== null) {
-  //     // Check for null explicitly
-  //     const aValue = a[sortColumn] as any;
-  //     const bValue = b[sortColumn] as any;
-  //     if (sortDirection === "asc") {
-  //       return aValue.localeCompare(bValue);
-  //     } else {
-  //       return bValue.localeCompare(aValue);
-  //     }
-  //   }
-  //   return 0;
-  // });
+ 
   const sortedData = data.slice().sort((a, b) => {
     if (sortColumn !== null) {
       const aValue = sortColumn === 'id' ? a[sortColumn] : (a[sortColumn] as any).toString();

@@ -1,38 +1,32 @@
 import { useForm } from "react-hook-form";
-// import {
-//   PrimaryButton,
-//   PrimaryButtonOutline,
-// // } from "../../../Components/Button";
-// import Checkbox from "../../../Components/Checkbox";
-// import Card from "../../../Components/Card";
-// import { AuthTypes } from "../../../Types/AuthenticationTypes";
+
 import { z, ZodType } from "zod";
-// import { zodResolver } from "@hookform/resolvers/zod";
-import { NavLink, useLocation, useNavigate } from "react-router-dom";
-import { RiInformationFill } from "react-icons/ri";
-import { useEffect, useState } from "react";
-// import axiosClient from "../../../axiosClient";
-import { toast } from "react-hot-toast";
+
+import { NavLink } from "react-router-dom";
+
+import { useState } from "react";
+
 import { RegTypes } from "../../Types/RegTypes";
 import { zodResolver } from "@hookform/resolvers/zod";
 import Card from "../../Components/Card";
 import { TextInput } from "../../Components/TextInput";
-import { PrimaryButton, PrimaryButtonOutline } from "../../Components/Button";
+import { PrimaryButton } from "../../Components/Button";
 import { IoMdHome } from "react-icons/io";
 import { FaUsers } from "react-icons/fa";
-// import { TextInput } from "../../../Components/TextInput";
+import axios from "axios";
+
 
 const HomePage = () => {
-  const locationState = useLocation();
+
   const [processing, setProcessing] = useState(false);
-  const navigate = useNavigate();
+ 
 
   const schema: ZodType<RegTypes> = z.object({
-    first_name: z.string().min(2).max(30),
-    last_name: z.string().min(2).max(30),
+    firstName: z.string().min(2).max(30),
+    lastName: z.string().min(2).max(30),
     email: z.string().email(),
-    phone: z.string().min(2).max(15),
-    dob: z.string().datetime(),
+    phoneNumber: z.string().min(2).max(15),
+    dob: z.string(),
   });
 
   const {
@@ -44,35 +38,25 @@ const HomePage = () => {
     resolver: zodResolver(schema),
   });
 
-  const onSubmit = (data: RegTypes) => {
+  const onSubmit = async (data: RegTypes) => {
     setProcessing(true);
-    // axiosClient
-    //   .post("/auth/register", {
-    //     ...data,
-    //     type: locationState.state.type.toUpperCase(),
-    //   })
-    //   .then(({ data }) => {
-    //     localStorage.setItem("ACCESS_TOKEN", data.token);
-    //     reset();
-    //     setProcessing(false);
-    //     navigate("/auth/verification");
-    //   })
-    //   .catch((error) => {
-    //     setProcessing(false);
-    //     if (error.response.status === 409)
-    //       return toast.error(error.response.data.message);
+    console.log(data)
+    try {
+      const response = await axios.post("https://backendboilerplate.onrender.com/api/users/register", {
+        ...data,
+      });
+      console.log("Response data:", response.data);
+      reset();
+      setProcessing(false);
 
-    //     return error.response.data.errors.forEach((error: any) => {
-    //       toast.error(error.msg);
-    //     });
-    //   });
+      // Handle successful response here
+    } catch (error) {
+      console.log(error);
+      setProcessing(false);
+    }
   };
 
-  //   useEffect(() => {
-  //     if (!locationState || !locationState.state || !locationState.state.type) {
-  //       navigate("/auth/get-started");
-  //     }
-  //   }, [locationState, navigate]);
+
 
   return (
     <div className="">
@@ -104,18 +88,18 @@ const HomePage = () => {
               >
                 <TextInput
                   type="text"
-                  name="first_name"
+                  name="firstName"
                   label="First Name"
                   register={register}
-                  error={errors.first_name}
+                  error={errors.firstName}
                 />
 
                 <TextInput
                   type="text"
-                  name="last_name"
+                  name="lastName"
                   label="Last Name"
                   register={register}
-                  error={errors.last_name}
+                  error={errors.lastName}
                 />
 
                 <TextInput
@@ -127,15 +111,15 @@ const HomePage = () => {
                 />
                 <TextInput
                   type="text"
-                  name="phone"
+                  name="phoneNumber"
                   label="Enter Phone number"
                   register={register}
-                  error={errors.phone}
+                  error={errors.phoneNumber}
                 />
 
                 <TextInput
                   type="date"
-                  name="date"
+                  name="dob"
                   label="Date of Birth"
                   register={register}
                   error={errors.dob}
